@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}My Courses - Teacher Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'teacher_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link active" href="{% url 'my_courses' %}">
+                        <i class="fas fa-book me-2"></i>My Courses
+                    </a>
+                    <a class="nav-link" href="{% url 'manage_exams' %}">
+                        <i class="fas fa-file-alt me-2"></i>Manage Exams
+                    </a>
+                    <a class="nav-link" href="{% url 'create_exam' %}">
+                        <i class="fas fa-plus me-2"></i>Create Exam
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>My Courses</h2>
+                    <span class="badge bg-success fs-6">{{ courses.count }} course{{ courses.count|pluralize }}</span>
+                </div>
+                
+                {% if courses %}
+                <div class="row g-4">
+                    {% for course in courses %}
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="card-title mb-0">{{ course.code }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2">{{ course.name }}</h6>
+                                {% if course.description %}
+                                <p class="card-text">{{ course.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                <div class="row text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-file-alt text-primary"></i>
+                                            <div><strong>{{ course.exam_set.count }}</strong></div>
+                                            <small class="text-muted">Exams</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-users text-info"></i>
+                                            <div><strong>{{ course.exam_set.all|length }}</strong></div>
+                                            <small class="text-muted">Students</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        Created: {{ course.created_at|date:"M d, Y" }}
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {% if course.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'create_exam' %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus me-1"></i>Create Exam
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-book fa-5x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Courses Assigned</h4>
+                    <p class="text-muted">You don't have any courses assigned yet. Please contact the administrator.</p>
+                    <a href="{% url 'teacher_panel' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

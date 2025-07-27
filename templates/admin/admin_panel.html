@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel - Exam Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-user-shield me-2"></i>Admin Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{% url 'admin_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'manage_users' %}">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                    <a class="nav-link" href="{% url 'manage_courses' %}">
+                        <i class="fas fa-book me-2"></i>Manage Courses
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Admin Dashboard</h2>
+                    <span class="badge bg-primary fs-6">Welcome, {{ user.first_name|default:user.username }}</span>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ total_users }}</h3>
+                                        <p class="mb-0">Total Users</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-users fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ total_courses }}</h3>
+                                        <p class="mb-0">Total Courses</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-book fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ total_exams }}</h3>
+                                        <p class="mb-0">Total Exams</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-file-alt fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ total_attempts }}</h3>
+                                        <p class="mb-0">Total Attempts</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-chart-line fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-plus me-2"></i>Recent Users
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% for user in recent_users %}
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <div>
+                                        <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ user.username }} - {{ user.userprofile.role|title }}</small>
+                                    </div>
+                                    <small class="text-muted">{{ user.date_joined|date:"M d, Y" }}</small>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted">No recent users</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-book me-2"></i>Recent Courses
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% for course in recent_courses %}
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <div>
+                                        <strong>{{ course.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ course.code }} - {{ course.teacher.first_name }} {{ course.teacher.last_name }}</small>
+                                    </div>
+                                    <small class="text-muted">{{ course.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                {% empty %}
+                                <p class="text-muted">No recent courses</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

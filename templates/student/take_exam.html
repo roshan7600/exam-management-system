@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exam.title }} - Take Exam{% endblock %}
+
+{% block extra_css %}
+<style>
+    .exam-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .timer-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1000;
+        background: white;
+        border: 2px solid #dc3545;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .question-navigation {
+        position: sticky;
+        top: 20px;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .question-nav-btn {
+        width: 40px;
+        height: 40px;
+        margin: 2px;
+        border: none;
+        border-radius: 5px;
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .question-nav-btn.answered {
+        background: #28a745;
+        color: white;
+    }
+    
+    .question-nav-btn.current {
+        background: #007bff;
+        color: white;
+    }
+    
+    .question-card {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .question-card.active {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .choice-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .choice-option:hover {
+        background-color: #f8f9fa;
+        border-color: #007bff;
+    }
+    
+    .choice-option.selected {
+        background-color: #e3f2fd;
+        border-color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Timer -->
+    <div class="timer-container">
+        <div class="text-center">
+            <h6 class="mb-2">Time Remaining</h6>
+            <div id="timer" class="timer-display">{{ exam.duration_minutes }}:00</div>
+        </div>
+    </div>
+    
+    <div class="exam-container">
+        <!-- Exam Header -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ exam.title }}</h3>
+                <p class="card-text">{{ exam.course.name }}</p>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <strong>Duration:</strong> {{ exam.duration_minutes }} min
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Total Marks:</strong> {{ exam.total_marks }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Questions:</strong> {{ questions|length }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Passing Marks:</strong> {{ exam.passing_marks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Question Navigation -->
+            <div class="col-md-3">
+                <div class="question-navigation">
+                    <h6 class="mb-3">Question Navigation</h6>
+                    <div class="d-flex flex-wrap">
+                        {% for question in questions %}
+                        <button type="button" class="question-nav-btn {% if forloop.first %}current{% endif %}" 
+                                onclick="showQuestion({{ forloop.counter0 }})" id="nav-btn-{{ forloop.counter0 }}">
+                            {{ forloop.counter }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <span class="badge bg-secondary me-1"></span> Not Answered<br>
+                            <span class="badge bg-success me-1"></span> Answered<br>
+                            <span class="badge bg-primary me-1"></span> Current
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            <div class="col-md-9">
+                <form id="examForm" method="post" action="{% url 'submit_exam' exam.id %}">
+                    {% csrf_token %}
+                    
+                    {% for question in questions %}
+                    <div class="question-card {% if forloop.first %}active{% endif %}" id="question-{{ forloop.counter0 }}">
+                        <div class="card question-card-inner">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    Question {{ forloop.counter }} of {{ questions|length }}
+                                    <span class="badge bg-info float-end">{{ question.marks }} mark{{ question.marks|pluralize }}</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="lead">{{ question.question_text|linebreaks }}</p>
+                                
+                                {% if question.question_type == 'mcq' %}
+                                    {% for choice in question.choices.all %}
+                                    <div class="choice-option" onclick="selectChoice({{ forloop.parentloop.counter0 }}, {{ choice.id }}, this)">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="question_{{ question.id }}" 
+                                                   value="{{ choice.id }}" 
+                                                   id="choice_{{ choice.id }}">
+                                            <label class="form-check-label" for="choice_{{ choice.id }}">
+                                                {{ choice.choice_text }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="mb-3">
+                                        <textarea class="form-control" name="question_{{ question.id }}" 
+                                                  rows="6" placeholder="Write your answer here..."
+                                                  onchange="markAnswered({{ forloop.counter0 }})"></textarea>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" 
+                                            onclick="previousQuestion()" 
+                                            {% if forloop.first %}disabled{% endif %}>
+                                        <i class="fas fa-arrow-left me-2"></i>Previous
+                                    </button>
+                                    
+                                    {% if forloop.last %}
+                                    <button type="button" class="btn btn-success" onclick="submitExam()">
+                                        <i class="fas fa-check me-2"></i>Submit Exam
+                                    </button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-primary" onclick="nextQuestion()">
+                                        Next<i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Exam</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to submit your exam? You cannot change your answers after submission.</p>
+                <div id="submission-summary"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmSubmit()">
+                    <i class="fas fa-check me-2"></i>Yes, Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQuestion = 0;
+const totalQuestions = {{ questions|length }};
+let timeRemaining = {{ exam.duration_minutes }} * 60; // in seconds
+let timerInterval;
+
+// Start timer
+function startTimer() {
+    timerInterval = setInterval(function() {
+        timeRemaining--;
+        updateTimerDisplay();
+        
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Time is up! Your exam will be submitted automatically.');
+            document.getElementById('examForm').submit();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timer').textContent = display;
+    
+    // Change color when time is running low
+    if (timeRemaining <= 300) { // 5 minutes
+        document.getElementById('timer').style.color = '#dc3545';
+    }
+}
+
+function showQuestion(index) {
+    // Hide current question
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Show selected question
+    document.getElementById(`question-${index}`).classList.add('active');
+    
+    // Update navigation buttons
+    document.querySelectorAll('.question-nav-btn').forEach(btn => {
+        btn.classList.remove('current');
+    });
+    document.getElementById(`nav-btn-${index}`).classList.add('current');
+    
+    currentQuestion = index;
+}
+
+function nextQuestion() {
+    if (currentQuestion < totalQuestions - 1) {
+        showQuestion(currentQuestion + 1);
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestion > 0) {
+        showQuestion(currentQuestion - 1);
+    }
+}
+
+function selectChoice(questionIndex, choiceId, element) {
+    // Remove selected class from all choices in this question
+    const questionCard = document.getElementById(`question-${questionIndex}`);
+    questionCard.querySelectorAll('.choice-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked choice
+    element.classList.add('selected');
+    
+    // Check the radio button
+    document.getElementById(`choice_${choiceId}`).checked = true;
+    
+    // Mark question as answered
+    markAnswered(questionIndex);
+}
+
+function markAnswered(questionIndex) {
+    const navBtn = document.getElementById(`nav-btn-${questionIndex}`);
+    navBtn.classList.add('answered');
+}
+
+function submitExam() {
+    // Count answered questions
+    const answeredCount = document.querySelectorAll('.question-nav-btn.answered').length;
+    const unansweredCount = totalQuestions - answeredCount;
+    
+    let summaryHtml = `
+        <div class="alert alert-info">
+            <strong>Submission Summary:</strong><br>
+            Total Questions: ${totalQuestions}<br>
+            Answered: ${answeredCount}<br>
+            Unanswered: ${unansweredCount}
+        </div>
+    `;
+    
+    if (unansweredCount > 0) {
+        summaryHtml += `<div class="alert alert-warning">
+            You have ${unansweredCount} unanswered question(s). These will be marked as incorrect.
+        </div>`;
+    }
+    
+    document.getElementById('submission-summary').innerHTML = summaryHtml;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('submitModal'));
+    modal.show();
+}
+
+function confirmSubmit() {
+    clearInterval(timerInterval);
+    document.getElementById('examForm').submit();
+}
+
+// Prevent page refresh/back button
+window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
+
+// Disable right-click context menu
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Disable F12, Ctrl+Shift+I, Ctrl+U
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+        (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault();
+    }
+});
+
+// Start timer when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Exams - Student Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-user-graduate me-2"></i>Student Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'student_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link active" href="{% url 'available_exams' %}">
+                        <i class="fas fa-file-alt me-2"></i>Available Exams
+                    </a>
+                    <a class="nav-link" href="{% url 'my_results' %}">
+                        <i class="fas fa-chart-bar me-2"></i>My Results
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Available Exams</h2>
+                    <span class="badge bg-info fs-6">{{ exams.count }} exam{{ exams.count|pluralize }} available</span>
+                </div>
+                
+                {% if exams %}
+                <div class="row g-4">
+                    {% for exam in exams %}
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">{{ exam.title }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <strong>Course:</strong> {{ exam.course.name }}<br>
+                                    <strong>Course Code:</strong> {{ exam.course.code }}
+                                </p>
+                                
+                                {% if exam.description %}
+                                <p class="card-text">{{ exam.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                <div class="row text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-clock text-primary"></i>
+                                            <div><strong>{{ exam.duration_minutes }}</strong></div>
+                                            <small class="text-muted">Minutes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <div><strong>{{ exam.total_marks }}</strong></div>
+                                            <small class="text-muted">Total Marks</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            <div><strong>{{ exam.passing_marks }}</strong></div>
+                                            <small class="text-muted">Passing Marks</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <i class="fas fa-question-circle text-info"></i>
+                                            <div><strong>{{ exam.questions.count }}</strong></div>
+                                            <small class="text-muted">Questions</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        Available until: {{ exam.end_time|date:"M d, Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'take_exam' exam.id %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-play me-2"></i>Start Exam
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-5x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Exams Available</h4>
+                    <p class="text-muted">There are currently no exams available for you to take.</p>
+                    <a href="{% url 'student_panel' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

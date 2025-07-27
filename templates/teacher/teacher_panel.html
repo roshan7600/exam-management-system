@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Panel - Exam Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{% url 'teacher_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'my_courses' %}">
+                        <i class="fas fa-book me-2"></i>My Courses
+                    </a>
+                    <a class="nav-link" href="{% url 'manage_exams' %}">
+                        <i class="fas fa-file-alt me-2"></i>Manage Exams
+                    </a>
+                    <a class="nav-link" href="{% url 'create_exam' %}">
+                        <i class="fas fa-plus me-2"></i>Create Exam
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Teacher Dashboard</h2>
+                    <span class="badge bg-success fs-6">Welcome, {{ user.first_name|default:user.username }}</span>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ my_courses.count }}</h3>
+                                        <p class="mb-0">My Courses</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-book fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ my_exams.count }}</h3>
+                                        <p class="mb-0">My Exams</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-file-alt fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h3 class="mb-0">{{ total_attempts }}</h3>
+                                        <p class="mb-0">Total Attempts</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-chart-line fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <a href="{% url 'create_exam' %}" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus me-2"></i>Create New Exam
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{% url 'my_courses' %}" class="btn btn-info w-100">
+                                            <i class="fas fa-book me-2"></i>View My Courses
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{% url 'manage_exams' %}" class="btn btn-warning w-100">
+                                            <i class="fas fa-cog me-2"></i>Manage Exams
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Exams -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Exams</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if my_exams %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Exam Title</th>
+                                                <th>Course</th>
+                                                <th>Duration</th>
+                                                <th>Start Time</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for exam in my_exams|slice:":5" %}
+                                            <tr>
+                                                <td><strong>{{ exam.title }}</strong></td>
+                                                <td>{{ exam.course.name }}</td>
+                                                <td>{{ exam.duration_minutes }} min</td>
+                                                <td>{{ exam.start_time|date:"M d, Y H:i" }}</td>
+                                                <td>
+                                                    {% if exam.is_active %}
+                                                        <span class="badge bg-success">Active</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Inactive</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'exam_details' exam.id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'exam_results' exam.id %}" class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted text-center">No exams created yet. <a href="{% url 'create_exam' %}">Create your first exam</a></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

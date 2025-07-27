@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}My Results - Student Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-user-graduate me-2"></i>Student Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'student_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'available_exams' %}">
+                        <i class="fas fa-file-alt me-2"></i>Available Exams
+                    </a>
+                    <a class="nav-link active" href="{% url 'my_results' %}">
+                        <i class="fas fa-chart-bar me-2"></i>My Results
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>My Exam Results</h2>
+                    <span class="badge bg-info fs-6">{{ total_exams }} exam{{ total_exams|pluralize }} completed</span>
+                </div>
+                
+                {% if total_exams > 0 %}
+                <!-- Summary Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                <h4>{{ total_exams }}</h4>
+                                <p class="mb-0">Total Exams</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                <h4>{{ passed_exams }}</h4>
+                                <p class="mb-0">Passed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-percentage fa-2x mb-2"></i>
+                                <h4>{{ average_percentage }}%</h4>
+                                <p class="mb-0">Average</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card text-white">
+                            <div class="card-body text-center">
+                                <i class="fas fa-trophy fa-2x mb-2"></i>
+                                <h4>{{ highest_percentage }}%</h4>
+                                <p class="mb-0">Best Score</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Exam Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Exam Title</th>
+                                        <th>Course</th>
+                                        <th>Date Taken</th>
+                                        <th>Score</th>
+                                        <th>Percentage</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in attempts_with_stats %}
+                                    <tr>
+                                        <td><strong>{{ item.attempt.exam.title }}</strong></td>
+                                        <td>{{ item.attempt.exam.course.name }}</td>
+                                        <td>{{ item.attempt.start_time|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            {% if item.attempt.score is not None %}
+                                                {{ item.attempt.score }}/{{ item.attempt.exam.total_marks }}
+                                            {% else %}
+                                                <span class="text-muted">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.attempt.score is not None %}
+                                                {{ item.percentage }}%
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.attempt.score is not None %}
+                                                {% if item.attempt.score >= item.attempt.exam.passing_marks %}
+                                                    <span class="badge bg-success">Passed</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Failed</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'result_detail' item.attempt.id %}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye me-1"></i>View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-bar fa-5x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Results Yet</h4>
+                    <p class="text-muted">You haven't taken any exams yet. Start by taking an available exam.</p>
+                    <a href="{% url 'available_exams' %}" class="btn btn-primary">
+                        <i class="fas fa-file-alt me-2"></i>View Available Exams
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

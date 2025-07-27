@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar p-0">
+            <div class="p-3">
+                <h5 class="text-white mb-4">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'teacher_panel' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'my_courses' %}">
+                        <i class="fas fa-book me-2"></i>My Courses
+                    </a>
+                    <a class="nav-link active" href="{% url 'manage_exams' %}">
+                        <i class="fas fa-file-alt me-2"></i>Manage Exams
+                    </a>
+                    <a class="nav-link" href="{% url 'create_exam' %}">
+                        <i class="fas fa-plus me-2"></i>Create Exam
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Add Question to {{ exam.title }}</h2>
+                    <a href="{% url 'exam_details' exam.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Exam
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" id="questionForm">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="question_text" class="form-label">Question Text</label>
+                                    <textarea class="form-control" id="question_text" name="question_text" rows="4" required></textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="question_type" class="form-label">Question Type</label>
+                                        <select class="form-select" id="question_type" name="question_type" onchange="toggleChoices()" required>
+                                            <option value="mcq">Multiple Choice</option>
+                                            <option value="descriptive">Descriptive</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="marks" class="form-label">Marks</label>
+                                        <input type="number" class="form-control" id="marks" name="marks" min="1" value="1" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- MCQ Choices (shown by default) -->
+                            <div id="mcq-choices">
+                                <h5 class="mb-3">Answer Choices</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="choice1" class="form-label">Choice 1</label>
+                                        <input type="text" class="form-control" id="choice1" name="choice1">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="choice2" class="form-label">Choice 2</label>
+                                        <input type="text" class="form-control" id="choice2" name="choice2">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="choice3" class="form-label">Choice 3</label>
+                                        <input type="text" class="form-control" id="choice3" name="choice3">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="choice4" class="form-label">Choice 4</label>
+                                        <input type="text" class="form-control" id="choice4" name="choice4">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="correct_choice" class="form-label">Correct Answer</label>
+                                    <select class="form-select" id="correct_choice" name="correct_choice">
+                                        <option value="1">Choice 1</option>
+                                        <option value="2">Choice 2</option>
+                                        <option value="3">Choice 3</option>
+                                        <option value="4">Choice 4</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Add Question
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleChoices() {
+    const questionType = document.getElementById('question_type').value;
+    const mcqChoices = document.getElementById('mcq-choices');
+    
+    if (questionType === 'mcq') {
+        mcqChoices.style.display = 'block';
+        // Make choice fields required
+        document.getElementById('choice1').required = true;
+        document.getElementById('choice2').required = true;
+    } else {
+        mcqChoices.style.display = 'none';
+        // Remove required attribute from choice fields
+        document.getElementById('choice1').required = false;
+        document.getElementById('choice2').required = false;
+        document.getElementById('choice3').required = false;
+        document.getElementById('choice4').required = false;
+    }
+}
+</script>
+{% endblock %}
