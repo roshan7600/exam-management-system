@@ -19,7 +19,9 @@ DEBUG = False
 
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['exam-management-system.onrender.com', 'localhost']
+# ALLOWED_HOSTS = ['exam-management-system.onrender.com', 'localhost']
+ALLOWED_HOSTS = ['exam-management-system.onrender.com', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
