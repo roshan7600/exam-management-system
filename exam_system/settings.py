@@ -106,3 +106,5 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # Auto primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
