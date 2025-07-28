@@ -143,3 +143,139 @@ SECRET_KEY=your-secret-key-here DEBUG=True ALLOWED_HOSTS=localhost,127.0.0.1
 
 Database Configuration
 DATABASE_URL=sqlite:///db.sqlite3
+
+
+
+# Exam Management System
+
+A comprehensive web-based exam management system built with Django, HTML, CSS, JavaScript, and Bootstrap. This system provides role-based access for Admins, Teachers, and Students to manage and conduct online examinations.
+
+## Features
+
+### 🔐 Authentication & Authorization
+- User registration and login system
+- Role-based access control (Admin, Teacher, Student)
+- Secure session management
+
+### 👨‍💼 Admin Features
+- User management (view all users and their roles)
+- Course management (create, edit, delete courses)
+- Assign teachers to courses
+- System overview dashboard with statistics
+
+### 👨‍🏫 Teacher Features
+- Course management for assigned courses
+- Create and manage exams
+- Add multiple choice and descriptive questions
+- Set exam duration, marks, and scheduling
+- View exam results and student performance
+- Question bank management
+
+### 👨‍🎓 Student Features
+- View available exams
+- Take timed exams with auto-submission
+- Real-time timer with warnings
+- Question navigation system
+- View exam results and detailed feedback
+- Exam history tracking
+
+### 📝 Exam Features
+- Multiple choice questions (MCQ) with auto-grading
+- Descriptive questions for manual evaluation
+- Timed exam sessions with countdown timer
+- Question shuffling option
+- One-time exam access per student
+- Auto-save functionality
+- Secure exam environment (disabled right-click, F12, etc.)
+
+## Technology Stack
+
+- **Backend**: Django 4.x
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Styling**: Bootstrap 5.3
+- **Database**: SQLite (default) / PostgreSQL
+- **Icons**: Font Awesome 6.0
+
+## Installation & Setup
+
+### Prerequisites
+- Python 3.8 or higher
+- pip (Python package installer)
+
+### Step 1: Clone the Repository
+\`\`\`bash
+git clone <repository-url>
+cd exam-management-system
+\`\`\`
+
+### Step 2: Create Virtual Environment
+\`\`\`bash
+python -m venv exam_env
+source exam_env/bin/activate  # On Windows: exam_env\Scripts\activate
+\`\`\`
+
+### Step 3: Install Dependencies
+\`\`\`bash
+pip install django
+pip install pillow  # For image handling (if needed)
+\`\`\`
+
+### Step 4: Database Setup
+\`\`\`bash
+python manage.py makemigrations
+python manage.py migrate
+\`\`\`
+
+### Step 5: Create Superuser
+\`\`\`bash
+python manage.py createsuperuser
+\`\`\`
+
+### Step 6: Load Sample Data (Optional)
+\`\`\`bash
+python scripts/seed_sample_data.py
+\`\`\`
+
+### Step 7: Run the Development Server
+\`\`\`bash
+python manage.py runserver
+\`\`\`
+
+Visit `http://127.0.0.1:8000` in your browser.
+
+## Default Login Credentials
+
+### Admin
+- Username: `admin`
+- Password: `admin123`
+
+### Sample Teacher
+- Username: `teacher1`
+- Password: `teacher123`
+
+### Sample Student
+- Username: `student1`
+- Password: `student123`
+
+## Project Structure
+
+\`\`\`
+exam-management-system/
+├── exam_system/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── exam_app/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── admin.py
+│   └── apps.py
+├── templates/
+│   ├── base.html
+│   ├── home.html
+│   ├── auth/
+│   ├── admin/
+│   ├── teacher/
+
