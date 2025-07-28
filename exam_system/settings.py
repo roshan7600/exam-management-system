@@ -69,11 +69,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-# For Postgres on Render:
-# import dj_database_url
-# DATABASES = {
-#     'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-# }
 
 # Password validators
 AUTH_PASSWORD_VALIDATORS = [
