@@ -9,23 +9,57 @@ from django.db.models import Q, Count, Avg
 from .models import UserProfile, Course, Exam, Question, Choice, ExamAttempt, StudentAnswer
 import json
 import random
+from .models import UserProfile
 
 def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'home.html')
 
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+#             return redirect('dashboard')
+#         else:
+#             messages.error(request, 'Invalid username or password.')
+#     return render(request, 'auth/login.html')
+
+
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+
+            try:
+                role = user.userprofile.role
+            except UserProfile.DoesNotExist:
+                messages.error(request, 'User role not defined.')
+                return redirect('login')
+
+            if role == 'admin':
+                return redirect('admin_panel')
+            elif role == 'teacher':
+                return redirect('teacher_panel')
+            elif role == 'student':
+                return redirect('student_panel')
+            else:
+                messages.error(request, 'Unknown user role.')
+                return redirect('login')
+
         else:
             messages.error(request, 'Invalid username or password.')
+
     return render(request, 'auth/login.html')
+
+
 
 def register_view(request):
     if request.method == 'POST':
