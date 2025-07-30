@@ -244,10 +244,12 @@ python manage.py runserver
 Visit `http://127.0.0.1:8000` in your browser.
 
 ## Default Login Credentials
+## Admin
+- create a superuser and set
+1-name for admin
+2-email
+3-passwoard
 
-### Admin
-- Username: `admin`
-- Password: `admin123`
 
 ### Sample Teacher
 - Username: `teacher1`
