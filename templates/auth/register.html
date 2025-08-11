@@ -13,50 +13,59 @@
                         <h3 class="card-title">Register</h3>
                         <p class="text-muted">Create your account</p>
                     </div>
-                    
-                    <form method="post">
+
+                    <form method="post" novalidate>
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name">
+                                <input type="text" class="form-control" id="first_name" name="first_name" required
+                                    minlength="2" maxlength="30" pattern="^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$"
+                                    title="Only letters, spaces, apostrophes and hyphens allowed (2-30 chars).">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name">
+                                <input type="text" class="form-control" id="last_name" name="last_name" required
+                                    minlength="2" maxlength="30" pattern="^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$"
+                                    title="Only letters, spaces, apostrophes and hyphens allowed (2-30 chars).">
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-user"></i>
                                 </span>
-                                <input type="text" class="form-control" id="username" name="username" required>
+                                <input type="text" class="form-control" id="username" name="username" required
+                                    minlength="3" maxlength="15" pattern="^[a-zA-Z0-9._]{3,15}$"
+                                    title="Only letters, numbers, dots, and underscores allowed (3-15 chars).">
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-envelope"></i>
                                 </span>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control" id="email" name="email" required maxlength="35"
+                                    title="Enter a valid email (max 35 chars).">
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Phone (Optional)</label>
+                            <label for="phone" class="form-label">Phone (10 digits only)</label>
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-phone"></i>
                                 </span>
-                                <input type="tel" class="form-control" id="phone" name="phone">
+                                <input type="tel" class="form-control" id="phone" name="phone" required
+                                    pattern="^\d{10}$" maxlength="10" title="Phone must be exactly 10 digits."
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
                             <select class="form-select" id="role" name="role" required>
@@ -65,7 +74,7 @@
                                 <option value="teacher">Teacher</option>
                             </select>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="password" class="form-label">Password</label>
@@ -73,8 +82,12 @@
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
                                     </span>
-                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <input type="password" class="form-control" id="password" name="password" required
+                                        minlength="6" maxlength="12">
                                 </div>
+                                <small class="form-text text-muted">
+                                    Password must be 6-12 chars and include uppercase, lowercase, digit & special char.
+                                </small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="confirm_password" class="form-label">Confirm Password</label>
@@ -82,18 +95,19 @@
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
                                     </span>
-                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    <input type="password" class="form-control" id="confirm_password"
+                                        name="confirm_password" required minlength="6" maxlength="12">
                                 </div>
                             </div>
                         </div>
-                        
+
                         <button type="submit" class="btn btn-primary w-100 mb-3">
                             <i class="fas fa-user-plus me-2"></i>Register
                         </button>
                     </form>
-                    
+
                     <div class="text-center">
-                        <p class="mb-0">Already have an account? 
+                        <p class="mb-0">Already have an account?
                             <a href="{% url 'login' %}" class="text-primary">Login here</a>
                         </p>
                     </div>
@@ -102,4 +116,114 @@
         </div>
     </div>
 </div>
+
+<script>
+    const form = document.querySelector('form');
+    const firstNameInput = document.getElementById('first_name');
+    const lastNameInput = document.getElementById('last_name');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+
+    // Name validation: letters, spaces, apostrophes, hyphens, 2-30 chars
+    const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,30}$/;
+
+    function validateName(input) {
+        const val = input.value.trim();
+        if (val.length === 0) {
+            input.setCustomValidity('This field is required.');
+        } else if (!nameRegex.test(val)) {
+            input.setCustomValidity('Only letters, spaces, apostrophes and hyphens allowed (2-30 chars).');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+
+    firstNameInput.addEventListener('input', () => validateName(firstNameInput));
+    lastNameInput.addEventListener('input', () => validateName(lastNameInput));
+
+    // Username validation: letters, numbers, dot, underscore, 3-15 chars
+    usernameInput.addEventListener('input', () => {
+        const val = usernameInput.value;
+        const regex = /^[a-zA-Z0-9._]{3,15}$/;
+        if (!regex.test(val)) {
+            usernameInput.setCustomValidity('Only letters, numbers, dots, and underscores allowed (3-15 chars).');
+        } else {
+            usernameInput.setCustomValidity('');
+        }
+    });
+
+    // Email validation
+    emailInput.addEventListener('input', () => {
+        const val = emailInput.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (val.length === 0) {
+            emailInput.setCustomValidity('Email is required.');
+        } else if (val.length > 35) {
+            emailInput.setCustomValidity('Email must be 35 characters or less.');
+        } else if (!emailRegex.test(val)) {
+            emailInput.setCustomValidity('Please enter a valid email address.');
+        } else {
+            emailInput.setCustomValidity('');
+        }
+    });
+
+    // Phone validation (exactly 10 digits)
+    phoneInput.addEventListener('input', () => {
+        const val = phoneInput.value;
+        const phoneRegex = /^\d{10}$/;
+        if (val.length === 0) {
+            phoneInput.setCustomValidity('Phone number is required.');
+        } else if (!phoneRegex.test(val)) {
+            phoneInput.setCustomValidity('Phone must be exactly 10 digits.');
+        } else {
+            phoneInput.setCustomValidity('');
+        }
+    });
+
+    // Password validation (6-12 chars, strong password)
+    passwordInput.addEventListener('input', () => {
+        const val = passwordInput.value;
+        // Strong password: at least one uppercase, one lowercase, one digit, one special char
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,12}$/;
+        if (val.length < 6 || val.length > 12) {
+            passwordInput.setCustomValidity('Password must be between 6 and 12 characters.');
+        } else if (!strongPasswordRegex.test(val)) {
+            passwordInput.setCustomValidity('Password must include uppercase, lowercase, number & special character.');
+        } else {
+            passwordInput.setCustomValidity('');
+        }
+
+        // Re-validate confirm password when password changes
+        if (confirmPasswordInput.value && confirmPasswordInput.value !== val) {
+            confirmPasswordInput.setCustomValidity('Passwords do not match.');
+        } else {
+            confirmPasswordInput.setCustomValidity('');
+        }
+    });
+
+    // Confirm Password validation
+    confirmPasswordInput.addEventListener('input', () => {
+        if (confirmPasswordInput.value !== passwordInput.value) {
+            confirmPasswordInput.setCustomValidity('Passwords do not match.');
+        } else {
+            confirmPasswordInput.setCustomValidity('');
+        }
+    });
+
+    // On form submit, force validity check
+    form.addEventListener('submit', (e) => {
+        // Trigger input events to update validity messages
+        [firstNameInput, lastNameInput, usernameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput].forEach(input => {
+            input.dispatchEvent(new Event('input'));
+        });
+
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            form.reportValidity();
+        }
+    });
+</script>
 {% endblock %}
